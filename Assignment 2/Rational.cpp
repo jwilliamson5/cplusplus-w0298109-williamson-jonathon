@@ -13,11 +13,17 @@ Rational::Rational(int number)
         :numerator(number),denominator(1) {}
 Rational::Rational(int numerator, int denominator)
         :numerator(numerator),denominator(denominator) {
-    if(!numerator == 0) {
-        this->reduce();
+    if(denominator == 0) {
+        this->divByZero();
     }
+    this->reduce();
 }
 Rational::~Rational() = default;
+
+void Rational::divByZero() {
+    cerr << "Error: divide by 0\n";
+    throw overflow_error("Error: Divide by zero");
+}
 
 int Rational::getNumerator() const {
     return this->numerator;
@@ -25,7 +31,9 @@ int Rational::getNumerator() const {
 
 void Rational::setNumerator(int numerator) {
     this->numerator = numerator;
-    this->reduce();
+    if(this->denominator != 1) {
+        this->reduce();
+    }
 }
 
 int Rational::getDenominator() const {
@@ -33,8 +41,13 @@ int Rational::getDenominator() const {
 }
 
 void Rational::setDenominator(int denominator) {
+    if(denominator == 0) {
+        divByZero();
+    }
     this->denominator = denominator;
-    this->reduce();
+    if(this->denominator != 1) {
+        this->reduce();
+    }
 }
 
 void Rational::reduce() {
@@ -42,6 +55,16 @@ void Rational::reduce() {
     int larger_num;
     int smaller_num;
     int commonFactor;
+
+    if((this->numerator >= 0 && this->denominator < 0) ||
+       (this->numerator <= 0 && this->denominator < 0)) {
+        this->numerator *= -1;
+        this->denominator *= -1;
+    }
+
+    if(this->numerator == 0) {
+        return;
+    }
 
     if(this->getNumerator() >= this->getDenominator()) {
         larger_num = this->getNumerator();
@@ -61,12 +84,6 @@ void Rational::reduce() {
 
     this->numerator /= commonFactor;
     this->denominator /= commonFactor;
-
-    if((this->numerator > 0 && this->denominator < 0) ||
-            (this->numerator < 0 && this->denominator < 0)) {
-        this->numerator *= -1;
-        this->denominator *= -1;
-    }
 }
 
 bool Rational::operator==(const Rational &rhs) const {
@@ -74,7 +91,7 @@ bool Rational::operator==(const Rational &rhs) const {
 }
 
 bool Rational::operator!=(const Rational &rhs) const {
-    return !(rhs == *this);
+    return !(*this == rhs);
 }
 
 bool Rational::operator<(const Rational &rhs) const {
@@ -86,11 +103,11 @@ bool Rational::operator>(const Rational &rhs) const {
 }
 
 bool Rational::operator<=(const Rational &rhs) const {
-    return (rhs < *this) || (rhs == *this) ;
+    return ((*this < rhs) || (rhs == *this));
 }
 
 bool Rational::operator>=(const Rational &rhs) const {
-    return !(*this <= rhs);
+    return ((*this > rhs) || (rhs == *this));
 }
 
 Rational Rational::operator+(Rational &rightObj) {
@@ -140,9 +157,10 @@ istream &operator>>(std::istream &is, Rational &number) {
         if(regex_search(input, m, e) && m.size() > 1) {
             ss << m[1] << ' ' << m[2];
             ss >> number.numerator >> number.denominator;
-            if(!number.numerator == 0) {
-                number.reduce();
+            if(number.denominator == 0) {
+                number.divByZero();
             }
+            number.reduce();
             break;
         } else {
             cerr << "Please enter a valid fraction.\n";

@@ -9,6 +9,7 @@ private:
     int numerator;
     int denominator;
     void reduce();
+    void divByZero();
 public:
     Rational();
     explicit Rational(int number);
