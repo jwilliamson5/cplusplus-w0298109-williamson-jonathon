@@ -1,7 +1,6 @@
 // Implementation for class RationalNumber
 
 #include "Rational.h"
-#include <iostream>
 #include <sstream>
 #include <regex>
 
@@ -56,34 +55,32 @@ void Rational::reduce() {
     int smaller_num;
     int commonFactor;
 
-    if((this->numerator >= 0 && this->denominator < 0) ||
-       (this->numerator <= 0 && this->denominator < 0)) {
+    if(this->numerator != 0) {
+        if(abs(this->getNumerator()) >= abs(this->getDenominator())) {
+            larger_num = this->getNumerator();
+            smaller_num = this->getDenominator();
+        } else {
+            larger_num = this->getDenominator();
+            smaller_num = this->getNumerator();
+        }
+
+        mod = larger_num % smaller_num;
+
+        if(mod == 0) {
+            commonFactor =  smaller_num;
+        } else {
+            commonFactor =  mod;
+        }
+
+        this->numerator /= commonFactor;
+        this->denominator /= commonFactor;
+    }
+
+    if(this->denominator < 0) {
         this->numerator *= -1;
         this->denominator *= -1;
     }
 
-    if(this->numerator == 0) {
-        return;
-    }
-
-    if(this->getNumerator() >= this->getDenominator()) {
-        larger_num = this->getNumerator();
-        smaller_num = this->getDenominator();
-    } else {
-        larger_num = this->getDenominator();
-        smaller_num = this->getNumerator();
-    }
-
-    mod = larger_num % smaller_num;
-
-    if(mod == 0) {
-        commonFactor =  smaller_num;
-    } else {
-        commonFactor =  mod;
-    }
-
-    this->numerator /= commonFactor;
-    this->denominator /= commonFactor;
 }
 
 bool Rational::operator==(const Rational &rhs) const {
@@ -99,7 +96,7 @@ bool Rational::operator<(const Rational &rhs) const {
 }
 
 bool Rational::operator>(const Rational &rhs) const {
-    return !(*this < rhs);
+    return (this->numerator * rhs.denominator) > (rhs.numerator * this->denominator);
 }
 
 bool Rational::operator<=(const Rational &rhs) const {
@@ -145,7 +142,8 @@ ostream &operator<<(ostream &os, const Rational &number) {
 }
 
 istream &operator>>(std::istream &is, Rational &number) {
-    regex e ("^([-0-9]+)\\/(-?[1-9][0-9]*)$");
+    regex fracRegex ("^(-?[0-9]+)\\/(-?[1-9][0-9]*)$");
+    regex intRegex ("^(-?[0-9]+)$");
     smatch m;
     string input;
     stringstream ss;
@@ -154,7 +152,7 @@ istream &operator>>(std::istream &is, Rational &number) {
             is.clear();
         }
         is >> input;
-        if(regex_search(input, m, e) && m.size() > 1) {
+        if(regex_search(input, m, fracRegex) && m.size() > 1) {
             ss << m[1] << ' ' << m[2];
             ss >> number.numerator >> number.denominator;
             if(number.denominator == 0) {
@@ -162,34 +160,14 @@ istream &operator>>(std::istream &is, Rational &number) {
             }
             number.reduce();
             break;
+        } else if(regex_search(input, m, intRegex) && m.size() > 1) {
+            ss << m[1];
+            ss >> number.numerator;
+            number.denominator = 1;
+            break;
         } else {
             cerr << "Please enter a valid fraction.\n";
             is.fail();
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
