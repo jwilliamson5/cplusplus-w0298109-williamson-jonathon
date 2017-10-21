@@ -1,6 +1,4 @@
 #include "Rational.h"
-#include <regex>
-#include <sstream>
 using namespace std;
 
 string btos(bool b);
