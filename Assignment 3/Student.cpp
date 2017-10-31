@@ -16,7 +16,7 @@ Student::Student(const Student &other):
 }
 
 Student::~Student() {
-    std::cout << "<Destructor>\n";
+    std::cout << "<destructor>\n";
     if(courseList != nullptr) {
         courseList = nullptr;
     }
