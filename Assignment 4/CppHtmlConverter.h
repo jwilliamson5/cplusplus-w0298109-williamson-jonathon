@@ -1,7 +1,6 @@
-/**
- * Head file for cppHtmlConverter class
- *
- */
+//
+// Head file for cppHtmlConverter class
+//
 
 #pragma once
 
@@ -33,9 +32,7 @@ public:
     explicit CppHtmlConverter(std::string pathToCpp);
     virtual ~CppHtmlConverter();
     const std::string &getPathToCpp() const;
-    void setPathToCpp(const std::string &pathToCpp);
     const std::string &getPathToHtml() const;
-    void setPathToHtml(const std::string &pathToHtml);
     friend std::istream &operator>>(std::istream &is, CppHtmlConverter &cppHtmlConverter);
     friend std::ostream &operator<<(std::ostream &os, const CppHtmlConverter &cppHtmlConverter);
     bool convertFile();

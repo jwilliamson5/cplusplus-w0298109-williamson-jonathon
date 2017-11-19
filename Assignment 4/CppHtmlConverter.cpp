@@ -1,5 +1,5 @@
 //
-// Created by jwill on 2017-11-15.
+// Implementation for CppHtmlConverter class
 //
 
 #include "CppHtmlConverter.h"
@@ -21,16 +21,8 @@ const std::string &CppHtmlConverter::getPathToCpp() const {
     return pathToCpp;
 }
 
-void CppHtmlConverter::setPathToCpp(const std::string &pathToCpp) {
-    CppHtmlConverter::pathToCpp = pathToCpp;
-}
-
 const std::string &CppHtmlConverter::getPathToHtml() const {
     return pathToHtml;
-}
-
-void CppHtmlConverter::setPathToHtml(const std::string &pathToHtml) {
-    CppHtmlConverter::pathToHtml = pathToHtml;
 }
 
 std::istream &operator>>(std::istream &is, CppHtmlConverter &cppHtmlConverter) {
