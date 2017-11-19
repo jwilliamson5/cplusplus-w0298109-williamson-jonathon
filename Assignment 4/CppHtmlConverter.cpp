@@ -25,31 +25,26 @@ const std::string &CppHtmlConverter::getPathToHtml() const {
     return pathToHtml;
 }
 
-std::istream &operator>>(std::istream &is, CppHtmlConverter &cppHtmlConverter) {
-    std::string input;
-    while(is) {
-        if(is.fail()) {
-            is.clear();
-        }
-        std::getline(is, input);
-        cppHtmlConverter.inputFile.open(input);
-        if(cppHtmlConverter.inputFile.fail()) {
-            std::cerr << "Please enter a valid file path.\n";
-            cppHtmlConverter.inputFile.open(cppHtmlConverter.pathToCpp);
-            is.fail();
-            continue;
-        }
-        if(!regex_match(input, std::regex("^.*\\.cpp$"))) {
-            std::cerr << "File path must end with .cpp\n";
-            cppHtmlConverter.inputFile.close();
-            is.fail();
-            continue;
-        }
-        cppHtmlConverter.inputFile.close();
-        cppHtmlConverter.pathToHtml = std::regex_replace(input, cppHtmlConverter.swapFileExt.rgx, cppHtmlConverter.swapFileExt.sub);
-        cppHtmlConverter.pathToCpp = std::move(input);
-        break;
+bool CppHtmlConverter::convertFile() {
+    if(pathToCpp.empty() || pathToHtml.empty()) {
+        return false;
     }
+    inputFile.open(pathToCpp);
+    if(inputFile.fail() || !outputFile.is_open()) {
+        return false;
+    }
+    outputFile << "<PRE>\n";
+    std::string line;
+    while(getline(inputFile, line)) {
+        for(auto const& r: escapeList) {
+            line = std::regex_replace(line, r.rgx, r.sub);
+        }
+        outputFile << line << std::endl;
+    }
+    inputFile.close();
+    outputFile << "</PRE>\n";
+    outputFile.close();
+    return true;
 }
 
 std::ostream &operator<<(std::ostream &os, const CppHtmlConverter &cppHtmlConverter) {
@@ -67,25 +62,45 @@ std::ostream &operator<<(std::ostream &os, const CppHtmlConverter &cppHtmlConver
     return os;
 }
 
-bool CppHtmlConverter::convertFile() {
-    if(pathToCpp.empty()) {
-        return false;
-    }
+int CppHtmlConverter::setPathToCpp(const std::string &pathToCpp) {
     inputFile.open(pathToCpp);
     if(inputFile.fail()) {
-        return false;
-    }
-    outputFile.open(pathToHtml);
-    outputFile << "<PRE>\n";
-    std::string line;
-    while(getline(inputFile, line)) {
-        for(auto const& r: escapeList) {
-            line = std::regex_replace(line, r.rgx, r.sub);
-        }
-        outputFile << line << std::endl;
+        return BAD_FILE_PATH;
+    } else if(!std::regex_match(pathToCpp, std::regex("^.*\\.cpp$"))) {
+        inputFile.close();
+        return BAD_FILE_TYPE;
     }
     inputFile.close();
-    outputFile << "</PRE>\n";
-    outputFile.close();
-    return true;
+    CppHtmlConverter::pathToCpp = pathToCpp;
+    return GOOD_FILE_PATH;
+}
+
+int CppHtmlConverter::setPathToHtml(const std::string &pathToHtml) {
+    std::string path = pathToHtml + "/thisIsATestFileThisShouldntBeHereDeleteThis.html";
+    std::ofstream testFile;
+    testFile.open(path);
+    if(testFile.fail()) {
+        return BAD_FILE_PATH;
+    }
+    testFile.close();
+    CppHtmlConverter::pathToHtml = pathToHtml;
+    std::remove(path.c_str());
+    return GOOD_FILE_PATH;
+}
+
+const std::string &CppHtmlConverter::getHtmlFileName() const {
+    return htmlFileName;
+}
+
+int CppHtmlConverter::setHtmlFileName(const std::string &htmlFileName) {
+    if(pathToHtml.empty()) {
+        return BAD_FILE_PATH;
+    }
+    outputFile.clear();
+    outputFile.open(pathToHtml + "/" + htmlFileName + ".html");
+    if(outputFile.fail()) {
+        return BAD_FILE_TYPE;
+    }
+    pathToHtml.append("/" + htmlFileName + ".html");
+    CppHtmlConverter::htmlFileName = htmlFileName;
 }
