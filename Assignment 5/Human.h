@@ -9,8 +9,8 @@ public:
     explicit Human(City *city);
     Human(City *city, int x, int y);
     virtual ~Human();
-    bool canBreed();
-    Organism* breed();
+    int canBreed();
+    Organism* breed(int dir);
 };
 
 #endif

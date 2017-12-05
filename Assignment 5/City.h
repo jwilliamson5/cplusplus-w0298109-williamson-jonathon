@@ -4,6 +4,8 @@
 #include <iostream>
 #include "GameSpecs.h"
 #include "Organism.h"
+#include <ctime>
+#include <random>
 
 class Organism;
 
@@ -14,8 +16,8 @@ class City
 {
 protected:
     Organism *grid[GRID_HEIGHT][GRID_WIDTH];
-    std::random_device rd;
-    std::mt19937_64 mt;
+//    std::random_device rd;
+//    std::default_random_engine mt;
 
 public:
     City();

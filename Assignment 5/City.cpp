@@ -6,7 +6,8 @@ City::City() {
             grid[x][y] = new Organism();
         }
     }
-    mt = std::mt19937_64(rd());
+    srand(time(NULL));
+//    mt = std::default_random_engine(rd());
 }
 City::~City() = default;
 
@@ -39,11 +40,12 @@ std::ostream& operator<<(std::ostream &output, City &city) {
     }
     output << "+\n";
 }
-int City::getRand(int max) {
-    std::uniform_int_distribution<int> dist (0, max - 1);
-    return dist(mt);
-}
 
+int City::getRand(int max) {
+//    std::uniform_int_distribution<int> dist (0, max - 1);
+//    return dist(mt);
+    return rand() % max;
+}
 
 void City::endStep() {
     for(auto& row: grid) {
